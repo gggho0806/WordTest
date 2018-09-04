@@ -129,15 +129,9 @@ public class OutputWord {
 	}
 	
 	/**
-	 * 建立預設頁首
-	 *
 	 * @param document XWPFDocument文件物件
 	 * @param text 頁首文字
-	 * @return 返回文件幫助類物件，可用於方法鏈呼叫
-	 * @throws XmlException XML異常
-	 * @throws IOException IO異常
-	 * @throws InvalidFormatException 非法格式異常
-	 * @throws FileNotFoundException 找不到文件異常
+	 * @throws IOException
 	 */
 	public static void createDefaultHeader(final XWPFDocument document, final String text) throws IOException{
 		XWPFHeader header =  document.createHeader(HeaderFooterType.FIRST); 
