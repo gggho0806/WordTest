@@ -4,9 +4,11 @@ import java.io.FileInputStream;
 import java.util.List;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFHeader;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHdrFtr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STHdrFtr;
 
 public class ParagraphReader {
 	public static void main(String[] args) {
