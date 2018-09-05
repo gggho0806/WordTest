@@ -1,6 +1,5 @@
 package WordTest.WordTest;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,7 +8,6 @@ import java.math.BigInteger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.wp.usermodel.HeaderFooterType;
 import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
-import org.apache.poi.xwpf.usermodel.Borders;
 import org.apache.poi.xwpf.usermodel.BreakType;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.TextAlignment;
@@ -21,20 +19,11 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFStyles;
 import org.apache.xmlbeans.impl.xb.xmlschema.SpaceAttribute;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTFldChar;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTFonts;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTabStop;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTText;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STFldCharType;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STHdrFtr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STJc;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTabJc;
 
 public class OutputWord {
 	public static void main(String[] args) throws Exception {
