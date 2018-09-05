@@ -11,19 +11,22 @@ import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.BreakType;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.TextAlignment;
-import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFFooter;
 import org.apache.poi.xwpf.usermodel.XWPFHeader;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFStyles;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.apache.xmlbeans.impl.xb.xmlschema.SpaceAttribute;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTFonts;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STHdrFtr;
+import Style.TableStyle;
+import Style.TextStyle;
 
 public class OutputWord {
 	public static void main(String[] args) throws Exception {
@@ -32,10 +35,9 @@ public class OutputWord {
 
 		// Write the Document in file system
 		FileOutputStream out = new FileOutputStream(new File("output.docx"));
-		createFooter(document);
-		createDefaultHeader(document, "testtesttesttesttest");
-//		createDefaultFooter(document, "test");
-		
+		createPageNumFooter(document);
+		createNormaltHeader(document, "testtesttesttesttest");
+
 		// 設定統一字體
 		XWPFStyles styles = document.createStyles();
 		CTFonts fonts = CTFonts.Factory.newInstance();
@@ -44,12 +46,12 @@ public class OutputWord {
 		fonts.setEastAsia("標楷體");
 		styles.setDefaultFonts(fonts);
 		XWPFParagraph paragraph = document.createParagraph();
-
-		addNomalParagraph(paragraph, "標題1", ParagraphAlignment.CENTER, TextAlignment.CENTER, 20, false, false, null,
+		TextStyle style = new TextStyle("標題1", ParagraphAlignment.CENTER, TextAlignment.CENTER, 20, false, false, null,
 				null, BreakType.TEXT_WRAPPING);
-
-		addNomalParagraph(paragraph, "標題2", ParagraphAlignment.CENTER, TextAlignment.BOTTOM, 20, false, false, null,
-				null, BreakType.PAGE);
+		addNomalParagraph(paragraph, style);
+		style = new TextStyle("標題2", ParagraphAlignment.CENTER, TextAlignment.BOTTOM, 20, false, false, null, null,
+				BreakType.PAGE);
+		addNomalParagraph(paragraph, style);
 
 		document.write(out);
 		out.close();
@@ -68,27 +70,38 @@ public class OutputWord {
 	 * @param rgbString
 	 * @param breakType
 	 */
-	public static void addNomalParagraph(XWPFParagraph paragraph, String content, ParagraphAlignment hAlignment,
-			TextAlignment vAlignment, Integer fontSize, Boolean isItalic, Boolean isBold,
-			UnderlinePatterns underLinePattern, String rgbString, BreakType breakType) {
+	public static void addNomalParagraph(XWPFParagraph paragraph, TextStyle style) {
 
-		paragraph.setAlignment(hAlignment);
-		paragraph.setVerticalAlignment(vAlignment);
+		paragraph.setAlignment(style.gethAlignment());
+		paragraph.setVerticalAlignment(style.getvAlignment());
 
 		XWPFRun run = paragraph.createRun();
-		if (fontSize != null)
-			run.setFontSize(fontSize);
-		if (isItalic != null)
-			run.setItalic(isItalic);
-		if (isBold != null)
-			run.setBold(isBold);
-		if (underLinePattern != null)
-			run.setUnderline(underLinePattern);
-		if (rgbString != null)
-			run.setColor(rgbString);
+		if (style.getFontSize() != null)
+			run.setFontSize(style.getFontSize());
+		if (style.getIsItalic() != null)
+			run.setItalic(style.getIsItalic());
+		if (style.getIsBold() != null)
+			run.setBold(style.getIsBold());
+		if (style.getUnderLinePattern() != null)
+			run.setUnderline(style.getUnderLinePattern());
+		if (style.getRgbString() != null)
+			run.setColor(style.getRgbString());
 
-		run.setText(content);
-		run.addBreak(breakType);
+		run.setText(style.getContent());
+		run.addBreak(style.getBreakType());
+	}
+
+	public static void createTable(XWPFDocument document, TableStyle style) {
+		// create table
+		XWPFTable table = document.createTable(style.getRowNum(), style.getColumnNum());
+		table.setWidth(style.getTableWidth());
+		String[][] contentMatrix = style.getContent();
+		for (int i = 0; i < style.getRowNum(); i++) {
+			XWPFTableRow row = table.getRow(i);
+			for (int j = 0; j < style.getColumnNum(); j++) {
+				row.getCell(j).setText(contentMatrix[i][j]);
+			}
+		}
 	}
 
 	/**
@@ -116,65 +129,72 @@ public class OutputWord {
 			ctpagemar.setBottom(new BigInteger(bottom));
 		}
 	}
-	
+
 	/**
-	 * @param document XWPFDocument文件物件
-	 * @param text 頁首文字
+	 * @param document
+	 *            XWPFDocument文件物件
+	 * @param text
+	 *            頁首文字
 	 * @throws IOException
 	 */
-	public static void createDefaultHeader(final XWPFDocument document, final String text) throws IOException{
-		XWPFHeader header =  document.createHeader(HeaderFooterType.FIRST); 
-        XWPFParagraph paragraph = header.createParagraph();
-        paragraph.setAlignment(ParagraphAlignment.RIGHT);
-        XWPFRun run = paragraph.createRun();
-        run.setText(text);
+	public static void createNormaltHeader(final XWPFDocument document, final String text) throws IOException {
+		XWPFHeader header = document.createHeader(HeaderFooterType.FIRST);
+		XWPFParagraph paragraph = header.createParagraph();
+		paragraph.setAlignment(ParagraphAlignment.RIGHT);
+		XWPFRun run = paragraph.createRun();
+		run.setText(text);
 	}
-	
+
 	/**
-	 * @param docx XWPFDocument文件物件
-	 * @param text 頁尾內容
-	 * @throws IOException IO異常
+	 * @param docx
+	 *            XWPFDocument文件物件
+	 * @param text
+	 *            頁尾內容
+	 * @throws IOException
+	 *             IO異常
 	 */
 	public static void createDefaultFooter(final XWPFDocument docx, final String text) throws IOException {
 		CTP ctp = CTP.Factory.newInstance();
-	    XWPFParagraph paragraph = new XWPFParagraph(ctp, docx);
-	    ctp.addNewR().addNewT().setStringValue(text);
-	    ctp.addNewR().addNewT().setSpace(SpaceAttribute.Space.PRESERVE);
-	    CTSectPr sectPr = docx.getDocument().getBody().isSetSectPr() ? docx.getDocument().getBody().getSectPr() : docx.getDocument().getBody().addNewSectPr();
-	    XWPFHeaderFooterPolicy policy = new XWPFHeaderFooterPolicy(docx, sectPr);
-	    XWPFFooter footer = policy.createFooter(STHdrFtr.DEFAULT, new XWPFParagraph[] { paragraph });
-	    footer.setXWPFDocument(docx);
+		XWPFParagraph paragraph = new XWPFParagraph(ctp, docx);
+		ctp.addNewR().addNewT().setStringValue(text);
+		ctp.addNewR().addNewT().setSpace(SpaceAttribute.Space.PRESERVE);
+		CTSectPr sectPr = docx.getDocument().getBody().isSetSectPr() ? docx.getDocument().getBody().getSectPr()
+				: docx.getDocument().getBody().addNewSectPr();
+		XWPFHeaderFooterPolicy policy = new XWPFHeaderFooterPolicy(docx, sectPr);
+		XWPFFooter footer = policy.createFooter(STHdrFtr.DEFAULT, new XWPFParagraph[] { paragraph });
+		footer.setXWPFDocument(docx);
 	}
-	
-	public static void createFooter(XWPFDocument document) throws Exception {
-        
-		// 建立頁尾
-        XWPFFooter footer =  document.createFooter(HeaderFooterType.FIRST);
-        XWPFParagraph paragraph = footer.createParagraph();
-        paragraph.setAlignment(ParagraphAlignment.CENTER);
-        paragraph.setVerticalAlignment(TextAlignment.CENTER);
-        
-        // 生成頁碼開頭
-        XWPFRun run = paragraph.createRun(); 
-        run.setText("Page "); 
-        paragraph.getCTP().addNewFldSimple().setInstr("PAGE \\* MERGEFORMAT"); 
-        run = paragraph.createRun(); 
-        run.setText(" of "); 
-        paragraph.getCTP().addNewFldSimple().setInstr("NUMPAGES \\* MERGEFORMAT");
-        
-        // 建立頁尾
-		footer =  document.createFooter(HeaderFooterType.DEFAULT);
-		paragraph = footer.createParagraph();
-        paragraph.setAlignment(ParagraphAlignment.CENTER);
-        paragraph.setVerticalAlignment(TextAlignment.CENTER);
-        
-        // 生成頁碼開頭
-        run = paragraph.createRun(); 
-        run.setText("-"); 
-        paragraph.getCTP().addNewFldSimple().setInstr("PAGE \\* MERGEFORMAT"); 
-        run = paragraph.createRun(); 
-        run.setText("-"); 
-//        paragraph.getCTP().addNewFldSimple().setInstr("NUMPAGES \\* MERGEFORMAT");
 
-    }
+	public static void createPageNumFooter(XWPFDocument document) throws Exception {
+
+		// 如果頁頭有設定過FIRST，會造成頁尾設定DEFAULT時，首頁會吃不到，所以需額外設定首頁
+		// 建立頁尾
+		XWPFFooter footer = document.createFooter(HeaderFooterType.FIRST);
+		XWPFParagraph paragraph = footer.createParagraph();
+		paragraph.setAlignment(ParagraphAlignment.CENTER);
+		paragraph.setVerticalAlignment(TextAlignment.CENTER);
+
+		// 生成頁碼開頭
+		XWPFRun run = paragraph.createRun();
+		run.setText("Page ");
+		paragraph.getCTP().addNewFldSimple().setInstr("PAGE \\* MERGEFORMAT");
+		run = paragraph.createRun();
+		run.setText(" of ");
+		paragraph.getCTP().addNewFldSimple().setInstr("NUMPAGES \\* MERGEFORMAT");
+
+		// 建立頁尾
+		footer = document.createFooter(HeaderFooterType.DEFAULT);
+		paragraph = footer.createParagraph();
+		paragraph.setAlignment(ParagraphAlignment.CENTER);
+		paragraph.setVerticalAlignment(TextAlignment.CENTER);
+
+		// 生成頁碼開頭
+		run = paragraph.createRun();
+		run.setText("-");
+		paragraph.getCTP().addNewFldSimple().setInstr("PAGE \\* MERGEFORMAT");
+		run = paragraph.createRun();
+		run.setText("-");
+		paragraph.getCTP().addNewFldSimple().setInstr("NUMPAGES \\* MERGEFORMAT");
+
+	}
 }
