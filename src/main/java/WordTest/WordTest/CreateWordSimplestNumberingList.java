@@ -47,9 +47,9 @@ public class CreateWordSimplestNumberingList {
 
 		/// * Decimal list
 		CTLvl cTLvl = cTAbstractNum.addNewLvl();
-		cTLvl.addNewNumFmt().setVal(STNumberFormat.BULLET);
-		cTLvl.addNewLvlText().setVal("●");
-//		cTLvl.addNewStart().setVal(BigInteger.valueOf(1));
+		cTLvl.addNewNumFmt().setVal(STNumberFormat.CHINESE_COUNTING);
+		cTLvl.addNewLvlText().setVal("%1、");
+		cTLvl.addNewStart().setVal(BigInteger.valueOf(1));
 		// */
 
 		XWPFAbstractNum abstractNum = new XWPFAbstractNum(cTAbstractNum);
